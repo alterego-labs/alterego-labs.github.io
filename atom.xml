@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[AlterEGO Labs official blog]]></title>
+  <link href="http://alterego-labs.github.io/atom.xml" rel="self"/>
+  <link href="http://alterego-labs.github.io/"/>
+  <updated>2014-12-17T16:20:17+02:00</updated>
+  <id>http://alterego-labs.github.io/</id>
+  <author>
+    <name><![CDATA[AlterEGO Labs]]></name>
+    <email><![CDATA[alteregolabs@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[We Are Here]]></title>
+    <link href="http://alterego-labs.github.io/blog/2014/12/17/we-are-here/"/>
+    <updated>2014-12-17T16:04:30+02:00</updated>
+    <id>http://alterego-labs.github.io/blog/2014/12/17/we-are-here</id>
+    <content type="html"><![CDATA[<p><strong>WE ARE ANNOUNCED OWN BLOG!</strong></p>
+
+<p>Hello all!</p>
+
+<p>Some peace of code:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">SomeClass</span><span class="o">.</span><span class="n">prepare</span> <span class="k">do</span> <span class="o">|</span><span class="n">optioner</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">optioner</span><span class="o">.</span><span class="n">get</span> <span class="ss">:some_key</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
+  
+</feed>
