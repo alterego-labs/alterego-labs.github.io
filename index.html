@@ -9,7 +9,8 @@
   <meta name="author" content="AlterEGO Labs">
 
   
-  <meta name="description" content=" Blog Archives Recent Posts GitHub Repos Status updating... @alterego-labs on GitHub Facebook Page ">
+  <meta name="description" content="Лирическое отступление Приходит время, когда просто сидеть на работе и как робот выполнять
+таски по трекеру становится скучно и не интересно. И в &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +78,381 @@
       <div class="blog-index">
   
   
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/12/18/primier-tdd-razrabotki-bibliotieki-na-ruby/">Пример TDD разработки библиотеки на Ruby</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2014-12-18T20:06:30+02:00'><span class='date'><span class='date-month'>Dec</span> <span class='date-day'>18</span><span class='date-suffix'>th</span>, <span class='date-year'>2014</span></span> <span class='time'>8:06 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Лирическое отступление</h3>
+
+<p>Приходит время, когда просто сидеть на работе и как робот выполнять
+таски по трекеру становится скучно и не интересно. И в этот момент
+просыпается необходимость разнообразить свою профессиональную жизнь.
+Самое первое, что можно придумать - это вести блог. Так что прошу не
+сильно закидывать шишками, т.к. это мой первый подобный пост.</p>
+
+<p><strong>Lets go!</strong></p>
+
+<h3>Задача</h3>
+
+<p>Сколько людей - столько и мнений. Наверное сейчас очень сложно придумать
+такую задачу, чтобы она была уникальной. Поэтому появилось устоявшееся
+выражение - <em>писать велосипед</em>. Вот таким велосипедом я сейчас и займусь
+(я даже специально не гуглил на эту тему, чтобы заранее себя не
+расстраивать). А проблема вот какая:</p>
+
+<blockquote><p>Последнее время очень часто возникает необходимость сливать базу
+данных с продакшена и накатывать ее на девелопменте, т.к. править
+различные штуки удобнее локально. Для этого приходится делать
+достаточно много шагов: зайти по ssh и сделать дамп базы, зайти через
+Filezilla и скачать этот дамп, затем накатить его на dev базу. И тут я
+задался вопросом ведь <strong>яжпрограммист</strong> или кто?!</p></blockquote>
+
+<p>Поэтому я решил написать на ruby утилиту, которая поможет мне
+автоматизировать этот процесс.</p>
+
+<blockquote><p>Я понимаю, что это велосипед, но ведь он свой :-)</p></blockquote>
+
+<h3>Цель</h3>
+
+<p>С самого начала я взял листок бумаги и накидал кусок кода, который,
+возможно, должен получится в конце. Можно сказать своеобразный <em>DSL</em>,
+при помощи которого я смог бы описывать <em>шаги</em>, которые я делал вручную.
+Получилось что-то такое:</p>
+
+<figure class='code'><figcaption><span>Листинг 1 - Идея </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">DbFetcher</span><span class="o">.</span><span class="n">steps</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">step</span> <span class="ss">ssh_login</span><span class="p">:</span> <span class="p">{</span> <span class="ss">host</span><span class="p">:</span> <span class="s1">&#39;some.com&#39;</span><span class="p">,</span> <span class="ss">username</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="ss">password</span><span class="p">:</span> <span class="s1">&#39;password&#39;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">step</span> <span class="ss">ssh_run</span><span class="p">:</span> <span class="p">{</span> <span class="ss">command</span><span class="p">:</span> <span class="s1">&#39;...&#39;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">step</span> <span class="ss">sftp</span><span class="p">:</span> <span class="p">{</span> <span class="ss">serverpath</span><span class="p">:</span> <span class="s1">&#39;...&#39;</span><span class="p">,</span> <span class="ss">localpath</span><span class="p">:</span> <span class="s1">&#39;...&#39;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">step</span> <span class="ss">local_run</span><span class="p">:</span> <span class="p">{</span> <span class="ss">command</span><span class="p">:</span> <span class="s1">&#39;...&#39;</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Сразу хочу отметить тот факт, что конечный результат может и даже,
+скорее всего, <em>будет</em> отличаться от кода выше.</p>
+
+<h3>Будем пробовать TDD</h3>
+
+<p>Есть многие вещи, которые ты не поймешь зачем они нужны, пока ты сам до
+этого не дойдешь, даже если какой-нибудь гуру будет тебе говорить, что это классно.
+Такая история и с <em>TDD</em>. Сама идея писать код для проверки кода звучит
+дико, не правда ли? Но не нужно смотреть на TDD только через призму,
+того что нужно писать дополнительный код, ведь программисты и так
+ленивые существа. Это целая методология со своими условными <strong>&lsquo;правилами&rsquo;</strong> и ее
+главная цель уменьшить вашу головную боль. Но не буду заострять внимание
+на этом. Просто будте готовы писать тесты!</p>
+
+<h3>Ну-с начнем</h3>
+
+<p>Самый сложный момент. С чего начать, когда есть только идея? Существуют
+два варианта движения:</p>
+
+<ol>
+<li>Inside-out</li>
+<li>Outside-in</li>
+</ol>
+
+
+<p>Выбор зависит индивидуально от программиста (смотря как у кого работает
+голова), а также от того, какую информацию содержит ваша первоначальная
+идея (листинг 1).</p>
+
+<p>Давайте еще раз посмотрим, что у нас есть - это пример <em>АПИ</em>, которое
+должна предоставлять библиотека или, другими словами, ее <em>outside</em>
+часть. Для нас очевиден путь (по крайней мере я выбрал этот вариант и
+возможно к концу написания библиотеки пойму, что он был неудобный)
+<strong>outside-in</strong>.</p>
+
+<h3>Первые шаги</h3>
+
+<p>С самого начала хочу определить структуру каталога, чтобы была
+возможность ссылаться на нее, а также вам для наглядности:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;project_root&gt;
+</span><span class='line'>|- lib
+</span><span class='line'>|- test</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Я думаю тут вопросов не должно возникнуть)</p>
+
+<p>В первую очередь давайте настроем наше test environment. Надеюсь вы
+заметили, что я ни слова не сказал насчет какого-нибудь фреймворка? Да,
+вы правильно поняли - это будет проект на чистом ruby. Поэтому любые
+настройки придется делать вручную. Но это даже к лучшему! Так вот, если
+взять <em>rails</em>, то там уже из коробки идет настроенный unit testing, но я
+всегда сразу устанавливал <em>Rspec</em>, и файл с настройками назывался
+<strong>test_helper</strong> или <strong>spec_helper</strong> (для rspec). Давайте и у нас
+создадим такой файл, в котором будут содержаться общие настройки для
+всех наших тестов:</p>
+
+<figure class='code'><figcaption><span>Листинг 2 - test/test_helper.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="s1">&#39;minitest/autorun&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Dir</span><span class="o">[</span><span class="no">File</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="bp">__FILE__</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;/../lib/**/*.rb&#39;</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">file</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">require</span> <span class="n">file</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Что мы здесь сделали?</p>
+
+<ol>
+<li>Подключили фреймворк для unit тестирования - Minitest, который идет в
+ruby stdlib</li>
+<li>Загрузили все файлы из папки <strong>lib</strong></li>
+</ol>
+
+
+<p>И вот теперь, наконец-то, можно приступать к написанию кода! А если
+точнее - теста. Вот тут начинается еще одна интересная вещь - а что
+тестировать, если ничего нет?</p>
+
+<p>Небольшое отступление. Сейчас мне в голову пришла мысль и я хочу немного
+изменить и дополнить нашу первоначальную идею:</p>
+
+<figure class='code'><figcaption><span>Листинг 3 - Идея измененная </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">runner</span> <span class="o">=</span> <span class="no">DbFetcher</span><span class="o">.</span><span class="n">define_runner</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">step</span> <span class="ss">ssh_login</span><span class="p">:</span> <span class="p">{</span> <span class="ss">host</span><span class="p">:</span> <span class="s1">&#39;some.com&#39;</span><span class="p">,</span> <span class="ss">username</span><span class="p">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="ss">password</span><span class="p">:</span> <span class="s1">&#39;password&#39;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">step</span> <span class="ss">ssh_run</span><span class="p">:</span> <span class="p">{</span> <span class="ss">command</span><span class="p">:</span> <span class="s1">&#39;...&#39;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">step</span> <span class="ss">sftp</span><span class="p">:</span> <span class="p">{</span> <span class="ss">serverpath</span><span class="p">:</span> <span class="s1">&#39;...&#39;</span><span class="p">,</span> <span class="ss">localpath</span><span class="p">:</span> <span class="s1">&#39;...&#39;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="n">step</span> <span class="ss">local_run</span><span class="p">:</span> <span class="p">{</span> <span class="ss">command</span><span class="p">:</span> <span class="s1">&#39;...&#39;</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'><span class="n">runner</span><span class="o">.</span><span class="n">run</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>И теперь стало немного понятнее с чего нам начать. Как я уже говорил
+выше я выбрал путь outside-in, т.е. мы будем двигаться в сторону
+уточнения внутренней реализации. Поэтому начнем с теста внешнего АПИ.
+Да, я не опечатался - начнем с <strong>ТЕСТА</strong>)</p>
+
+<figure class='code'><figcaption><span>Листинг 4 - Первая проба написания теста test/lib/db_fetcher_test.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">require_relative</span> <span class="s1">&#39;../test_helper&#39;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">DbFetcherTest</span> <span class="o">&lt;</span> <span class="no">Minitest</span><span class="o">::</span><span class="no">Test</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">test_define_new_runner</span>
+</span><span class='line'>    <span class="n">assert_instance_of</span> <span class="no">DbFetcher</span><span class="o">::</span><span class="no">Runner</span><span class="p">,</span> <span class="no">DbFetcher</span><span class="o">.</span><span class="n">define_runner</span> <span class="p">{}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Сейчас давайте разберем листинг 4:</p>
+
+<ol>
+<li>Мы заинклудили наш test_helper, поэтому в данном контексте доступен
+Minitest</li>
+<li>Написали тест, который проверяет правильно работы метода
+<code>define_runner</code> (здесь лучше сказать, что мы проверяем не
+правильность, а то, какой результат ожидаем после вызова данного
+метода). Все, что мы можем сейчас проверить - метод <code>define_runner</code>
+возвращает новый экземпляр класса <code>DbFetcher::Runner</code>.</li>
+</ol>
+
+
+<p>А давайте запустим наш тест и посмотрим результат? (подсказка: для
+запуска теста набирайте <code>ruby test/lib/db_fetcher_test.rb</code>):</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Run options: --seed 60105
+</span><span class='line'>
+</span><span class='line'># Running:
+</span><span class='line'>
+</span><span class='line'>E
+</span><span class='line'>
+</span><span class='line'>Finished in 0.001982s, 504.5409 runs/s, 0.0000 assertions/s.
+</span><span class='line'>
+</span><span class='line'>  1) Error:
+</span><span class='line'>DbFetcherTest#test_define_new_runner:
+</span><span class='line'>NameError: uninitialized constant DbFetcherTest::DbFetcher
+</span><span class='line'>    test/lib/db_fetcher_test.rb:10:in `test_define_new_runner'
+</span><span class='line'>
+</span><span class='line'>1 runs, 0 assertions, 0 failures, 1 errors, 0 skips</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Упс&hellip; Но все правильно! Ведь кода у нас еще нет! Сейчас мы должны
+написать минимум кода для того, чтобы удовлетворить данный тест.</p>
+
+<figure class='code'><figcaption><span>Листинг 5 - lib/db_fetcher.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">DbFetcher</span>
+</span><span class='line'>  <span class="kp">extend</span> <span class="nb">self</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">define_runner</span><span class="p">(</span><span class="o">&amp;</span><span class="n">block</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">Runner</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Так-с&hellip; Попытка следующая:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Run options: --seed 17668
+</span><span class='line'>
+</span><span class='line'># Running:
+</span><span class='line'>
+</span><span class='line'>E
+</span><span class='line'>
+</span><span class='line'>Finished in 0.001540s, 649.3506 runs/s, 0.0000 assertions/s.
+</span><span class='line'>
+</span><span class='line'>  1) Error:
+</span><span class='line'>DbFetcherTest#test_define_new_runner:
+</span><span class='line'>NameError: uninitialized constant DbFetcher::Runner
+</span><span class='line'>    test/lib/db_fetcher_test.rb:10:in `test_define_new_runner'
+</span><span class='line'>
+</span><span class='line'>1 runs, 0 assertions, 0 failures, 1 errors, 0 skips</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Вот черт! Совсем забыл про <code>Runner</code>. Давайте определим и его!</p>
+
+<figure class='code'><figcaption><span>Листинг 6 - lib/db_fetcher/runner.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">DbFetcher</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Runner</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>А вот теперь скрестили пальцы и-и-и-и:</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>Run options: --seed 57197
+</span><span class='line'>
+</span><span class='line'># Running:
+</span><span class='line'>
+</span><span class='line'>.
+</span><span class='line'>
+</span><span class='line'>Finished in 0.001258s, 794.9126 runs/s, 794.9126 assertions/s.
+</span><span class='line'>
+</span><span class='line'>1 runs, 1 assertions, 0 failures, 0 errors, 0 skips</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Отлично! <code>1 assertions</code> значит, что наш тест прошел! Фууух.</p>
+
+<h3>Итерационность</h3>
+
+<p>Главное слово в этом процессе - <strong>итерационность</strong>. После того, как вы
+добились чтобы тест прошел, можете писать тест дальше. Затем вы опять
+пишете код, удовлетворяющий новые тесты, но и не сломал предыдущие! И
+этот процесс повторяется снова и снова. Самой главной величиной этого
+процесса является размер вот этого шага или количество логики,
+заложенной в тесте, после написания которого вы приступаете к написанию
+кода. Здесь нет никаких пожеланий и вступает в силу индивидуальность
+разработчика. Каждый выбирает этот шаг так, чтобы было комфортно: если
+напишите много тестов - зациклитесь на написании кода, а также есть
+вероятность сделать тесты неактуальными, т.к. при их написании не учли
+каких-либо архитектурных моментов; если напишите мало - то придется
+слишком часто переключать ваш контекст между кодом и тестами, что тоже
+не гуд, т.к. опять же можно что-то упустить.</p>
+
+<h3>Продолжим?</h3>
+
+<p>Спешу вас разочаровать(а может и обрадовать) - я не буду полностью
+описывать весь процесс разработки данной библиотеки, т.к. это будет
+слишком много неинтересного текста и чередующихся листингов
+тесты-код-тесты-код-тесты&hellip; и т.д. Поэтому я предлагаю вам
+потренероваться, а мне дописать библиотеку и затем я выложу исходники на
+github, и выложу сюда ссылку, хорошо?) Ну и отлично!</p>
+
+<h4>Спасибо за внимание!</h4>
+</div>
+  
+  
+
+
+    </article>
+  
   <div class="pagination">
     
     <a href="/blog/archives">Blog Archives</a>
@@ -88,6 +464,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/12/18/primier-tdd-razrabotki-bibliotieki-na-ruby/">Пример TDD разработки библиотеки на Ruby</a>
+      </li>
     
   </ul>
 </section>
