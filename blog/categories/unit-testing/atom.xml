@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Unit Testing | AlterEGO Labs official blog]]></title>
   <link href="http://alterego-labs.github.io/blog/categories/unit-testing/atom.xml" rel="self"/>
   <link href="http://alterego-labs.github.io/"/>
-  <updated>2014-12-20T19:44:20+02:00</updated>
+  <updated>2015-01-02T10:29:59+02:00</updated>
   <id>http://alterego-labs.github.io/</id>
   <author>
     <name><![CDATA[AlterEGO Labs]]></name>
@@ -319,6 +319,11 @@ Finished in 0.001258s, 794.9126 runs/s, 794.9126 assertions/s.
 ссылку, хорошо?) Ну и отлично!</p>
 
 <h4>Спасибо за внимание!</h4>
+
+<p><strong>UPDATE</strong>. Как и обещал, выкладываю ссылку на репозитарий
+<a href="https://github.com/alterego-labs/db_fetcher">db_fetcher</a>. Библиотека
+еще будет дорабатываться, но базовые концепции уже реализованы и
+протестированы.</p>
 ]]></content>
   </entry>
   
