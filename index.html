@@ -9,8 +9,9 @@
   <meta name="author" content="AlterEGO Labs">
 
   
-  <meta name="description" content="Лирическое отступление Приходит время, когда просто сидеть на работе и как робот выполнять
-таски по трекеру становится скучно и не интересно. И в &hellip;">
+  <meta name="description" content="Вот и наступил 2015 год. Подводя итоги прошлого года можно отметить две
+мэйнстримовые тенденции: Статическая типизация
+Функциональное &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +78,261 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/01/02/ruby-s-funktsional'nym-blieskom/">Ruby с функциональным блеском</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-01-02T17:20:26+02:00'><span class='date'><span class='date-month'>Jan</span> <span class='date-day'>2</span><span class='date-suffix'>nd</span>, <span class='date-year'>2015</span></span> <span class='time'>5:20 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Вот и наступил 2015 год. Подводя итоги прошлого года можно отметить две
+мэйнстримовые тенденции:</p>
+
+<ol>
+<li>Статическая типизация</li>
+<li>Функциональное программирование</li>
+</ol>
+
+
+<p>Сегодня пойдет речь о втором пункте.</p>
+
+<h3>Год перемен</h3>
+
+<p>2014 год однозначно был функциональным. Вторую жизнь получили многие
+забытые функциональные языки, много новых появилось. Их начинали пихать
+куда можно и куда нельзя, где уместно их использовать, а где нет. Меня
+тоже немного задела эта волна. Совершенно случайно необходимо было
+написать слой приложения на любом языке кроме ruby. Задача выбора языка
+сейчас очень сложна из-за их огромного выбора. Но не на этот раз! Все
+больше и больше информации появлялось о новом молодом языке <strong>elixir</strong>.
+Он привлекал еще больше внимания, т.к. его создатель - Rails Core Team
+Member (Jose Valim)!. И как раз вышла стабильная версия 1.0.0! И он как
+раз еще и функциональный язык! <strong>Бинго!</strong> Как раз есть возможность
+окунуться в мир ФП на реальном примере! Работка обещала быть интересной
+:-)</p>
+
+<h3>Другой мир</h3>
+
+<p>На первый взгляд все казалось намного проще. Но в самом начале был
+тупик&hellip; ООПшный тупик&hellip; Нет классов и, соответственно, нет
+наследования и всех плюшек ООП. Есть только функции и их можно
+объединять в модули и все. Совсем другой мир! Но не менее интересный) Но
+я не буду полностью все описывать, а остановлюсь на нескольких, как мне
+кажется, особо интересных особенностях.</p>
+
+<h3>Трансформация данных</h3>
+
+<p>Для тех, кто хочет познакомится с elixir и функциональным
+программированием, обязательно стоит посмотреть доклад Дейва Томаса
+(Dave Thomas) <a href="https://www.youtube.com/watch?v=KQwEmdOH-GM">Elixir: Power of Erlang, Joy of Ruby</a>.
+Основная идея, которую я подчерпнул из данного доклада - трансформация данных.
+Т.е., рассматривая какую-либо часть архитектуры как черный ящик, то на
+вход подается <code>данные_1</code>, а на выходе мы ожидаем <code>данные_2</code>. Я думаю,
+что это применимо и к ОПП подходу, но в ФП это более выражено и есть
+даже специальный оператор!</p>
+
+<h3>Pipe-оператор</h3>
+
+<p>В elixir есть специальный оператор <code>|&gt;</code>, который называется
+pipe-оператор, который выполняет операции над данными слева. Например:</p>
+
+<figure class='code'><figcaption><span>Листинг 1 - Пример использования pipe-оператора </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='elixir'><span class='line'><span class="n">str</span> <span class="p">=</span> <span class="s2">&quot;   sergey     &quot;</span>
+</span><span class='line'><span class="n">str</span> <span class="o">|&gt;</span> <span class="nc">String</span><span class="p">.</span><span class="n">strip</span> <span class="c1"># =&gt; &quot;sergey&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Причем количество операций преобразования может быть несколько</p>
+
+<figure class='code'><figcaption><span>Листинг 2 - Пример комбинирования операций преобразования через pipe-оператор </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='elixir'><span class='line'><span class="n">str</span> <span class="p">=</span> <span class="s2">&quot;   sergey     &quot;</span>
+</span><span class='line'><span class="n">str</span> <span class="o">|&gt;</span> <span class="nc">String</span><span class="p">.</span><span class="n">strip</span> <span class="o">|&gt;</span> <span class="nc">String</span><span class="p">.</span><span class="n">capitalize</span> <span class="c1"># =&gt; &quot;Sergey&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Это очень напоминает оператор <code>|</code>, используемый в bash.</p>
+
+<h3>А что в ruby?</h3>
+
+<p>Ruby полностью объектно-ориентированный язык, поэтому в основе лежат
+объекты и связь между объектами с помощью сообщений. Но сколько же раз
+вы видели подобный код:</p>
+
+<figure class='code'><figcaption><span>Листинг 3 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">fetch_name</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">normalize_name</span><span class="p">(</span><span class="n">strip_html</span><span class="p">(</span><span class="n">html</span><span class="p">))</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Меня всегда подобный код вводит в конфуз, т.к. с первого взгляда сложно
+понять, где входные данные и список операций обработки.</p>
+
+<p>Но в ruby есть решение подобной ситуации! Мы будем использовать здесь
+<em>monckeypatching</em> (начиная с ruby 2.0 необходимо использовать
+<em>refinements</em>)!</p>
+
+<figure class='code'><figcaption><span>Листинг 4 - Monckeypatching </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">String</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">strip_html</span>
+</span><span class='line'>    <span class="c1"># some code</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">normalize_name</span>
+</span><span class='line'>    <span class="c1"># some code</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">fetch_name</span><span class="p">(</span><span class="n">html</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">html</span><span class="o">.</span><span class="n">strip_html</span><span class="o">.</span><span class="n">normalize_name</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Вот чем вам не код, как в листинге 2? В данном примере все операции
+производятся над типом <code>String</code>. Если в цепочке обработки используются
+несколько типов данных, то необходимо патчить все соответствующие
+классы.</p>
+
+<h3>А как же коллекции?</h3>
+
+<p>Pipe-оператор также отлично справляется и с коллекциями. Вот, например,
+код, который увеличивает каждый элемент в массиве на <em>1</em>:</p>
+
+<figure class='code'><figcaption><span>Листинг 5 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='elixir'><span class='line'><span class="kd">defmodule</span> <span class="nc">Transform</span> <span class="k">do</span>
+</span><span class='line'>  <span class="kd">def</span> <span class="n">increment</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">el</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">arr</span> <span class="p">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+</span><span class='line'><span class="n">arr</span> <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="nc">Transform</span><span class="p">.</span><span class="n">increment</span><span class="p">(</span><span class="ni">&amp;1</span><span class="p">))</span> <span class="c1">#=&gt; [2, 3, 4]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Или даже лучше так:</p>
+
+<figure class='code'><figcaption><span>Листинг 6 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='elixir'><span class='line'><span class="kd">defmodule</span> <span class="nc">Transform</span> <span class="k">do</span>
+</span><span class='line'>  <span class="kd">def</span> <span class="n">increment</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">el</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">def</span> <span class="n">process_element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">el</span> <span class="o">|&gt;</span> <span class="n">increment</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">arr</span> <span class="p">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+</span><span class='line'><span class="n">arr</span> <span class="o">|&gt;</span> <span class="nc">Enum</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="nc">Transform</span><span class="p">.</span><span class="n">process_element</span><span class="p">(</span><span class="ni">&amp;1</span><span class="p">))</span> <span class="c1">#=&gt; [2, 3, 4]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>В ruby это выглядело бы следующим образом:</p>
+
+<figure class='code'><figcaption><span>Листинг 7 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">process_element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">el</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">arr</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">]</span>
+</span><span class='line'><span class="n">arr</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">e</span><span class="o">|</span> <span class="n">process_element</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="p">}</span> <span class="c1"># =&gt; [2, 3, 4]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Или в стиле elixir&#8217;a:</p>
+
+<figure class='code'><figcaption><span>Листинг 8 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">process_element</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">el</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">arr</span> <span class="o">=</span> <span class="o">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">]</span>
+</span><span class='line'><span class="n">arr</span><span class="o">.</span><span class="n">map</span> <span class="o">&amp;</span><span class="nb">method</span><span class="p">(</span><span class="ss">:process_element</span><span class="p">)</span> <span class="c1"># =&gt; [2, 3, 4]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Что в итоге?</h3>
+
+<p>Я очень люблю ruby! Каждый день для себя открываю все больше и больше
+возможностей и не перестаю восхищатся его мощью и выразительностью. Но
+всегда не покидает чувство, что чего-то не хватает и ты находишь это в
+другом языке и пытаешься реализовать в ruby. Кто знает, возможно лет
+через N это запилят и в ruby :-)</p>
+
+<h4>Спасибо за внимание!</h4>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -469,6 +725,10 @@ Minitest</li>
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/01/02/ruby-s-funktsional'nym-blieskom/">Ruby с функциональным блеском</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/12/18/primier-tdd-razrabotki-bibliotieki-na-ruby/">Пример TDD разработки библиотеки на Ruby</a>
