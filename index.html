@@ -9,9 +9,8 @@
   <meta name="author" content="AlterEGO Labs">
 
   
-  <meta name="description" content="Вот и наступил 2015 год. Подводя итоги прошлого года можно отметить две
-мэйнстримовые тенденции: Статическая типизация
-Функциональное &hellip;">
+  <meta name="description" content="Вот такая вот ситуация В основе статьи лежит ситуация, с которой я и мои коллеги столкнулись
+при работе над одним проектом. Представим себе следующее &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +77,221 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/15/kolliziia-imien-klassa-i-modulia-v-ruby/">Коллизия имен класса и модуля в Ruby</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-03-15T09:33:25+02:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>15</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>9:33 am</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h3>Вот такая вот ситуация</h3>
+
+<p>В основе статьи лежит ситуация, с которой я и мои коллеги столкнулись
+при работе над одним проектом.</p>
+
+<p>Представим себе следующее. У меня есть модель <code>Item</code>:</p>
+
+<figure class='code'><figcaption><span>Листинг 0 - Модель Item app/models/item.rb</span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Item</span> <span class="o">&lt;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Затем нам дали задачу на новую фичу: пользователи могут создавать списки
+и добавлять туда элементы. Мы сразу видим модель <code>List</code>:</p>
+
+<figure class='code'><figcaption><span>Листинг 1 - Модель List app/models/list.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">List</span> <span class="o">&lt;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Но для хранения связи между элементом и листом мы решили использовать модель
+не <code>ListItem</code>, а положить ее в namespace <code>List</code>, т.е. логически
+выделить эту часть подсистемы, т.к. мы предполагаем, что будут еще связанные модели.
+И получается следующее:</p>
+
+<figure class='code'><figcaption><span>Листинг 2 - Модель List::Item app/models/list/item.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">List</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span> <span class="o">&lt;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Как бы все идет хорошо до тех пор, пока вы не захотите использовать
+<code>List::Item</code> модель где-нибудь в коде приложения:</p>
+
+<figure class='code'><figcaption><span>Листинг 3 - Использование List::Item в rails console </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>Loading development environment <span class="o">(</span>Rails 4.0.4<span class="o">)</span>
+</span><span class='line'>2.1.2 :001 &gt; List::Item.new
+</span><span class='line'>TypeError: List is not a module
+</span><span class='line'>  from /Users/sergio/Work/railsapps/namespace_collision_demo/app/models/list/item.rb:1:in <span class="sb">`</span>&lt;top <span class="o">(</span>required<span class="o">)</span>&gt;<span class="s1">&#39;</span>
+</span><span class='line'><span class="s1"> from /Users/sergio/.rvm/gems/ruby-2.1.2/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:424:in `load&#39;</span>
+</span><span class='line'>  from /Users/sergio/.rvm/gems/ruby-2.1.2/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:424:in <span class="sb">`</span>block in load_file<span class="s1">&#39;</span>
+</span><span class='line'><span class="s1"> from /Users/sergio/.rvm/gems/ruby-2.1.2/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:616:in `new_constants_in&#39;</span>
+</span><span class='line'>  from /Users/sergio/.rvm/gems/ruby-2.1.2/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:423:in <span class="sb">`</span>load_file<span class="s1">&#39;</span>
+</span><span class='line'><span class="s1"> from /Users/sergio/.rvm/gems/ruby-2.1.2/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:324:in `require_or_load&#39;</span>
+</span><span class='line'>  from /Users/sergio/.rvm/gems/ruby-2.1.2/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:463:in <span class="sb">`</span>load_missing_constant<span class="s1">&#39;</span>
+</span><span class='line'><span class="s1"> from /Users/sergio/.rvm/gems/ruby-2.1.2/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:184:in `const_missing&#39;</span>
+</span><span class='line'>  from <span class="o">(</span>irb<span class="o">)</span>:1
+</span><span class='line'>  from /Users/sergio/.rvm/gems/ruby-2.1.2/gems/railties-4.0.4/lib/rails/commands/console.rb:90:in <span class="sb">`</span>start<span class="s1">&#39;</span>
+</span><span class='line'><span class="s1"> from /Users/sergio/.rvm/gems/ruby-2.1.2/gems/railties-4.0.4/lib/rails/commands/console.rb:9:in `start&#39;</span>
+</span><span class='line'>  from /Users/sergio/.rvm/gems/ruby-2.1.2/gems/railties-4.0.4/lib/rails/commands.rb:62:in <span class="sb">`</span>&lt;top <span class="o">(</span>required<span class="o">)</span>&gt;<span class="s1">&#39;</span>
+</span><span class='line'><span class="s1"> from bin/rails:4:in `require&#39;</span>
+</span><span class='line'>  from bin/rails:4:in <span class="sb">`</span>&lt;main&gt;<span class="err">&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Есть несколько путей решения этой проблемы.</p>
+
+<h3>Решение 0 - Внести название модуля в название класса</h3>
+
+<p>Я до конца не понимаю почему, но вот если изменить код модели
+<code>List::Item</code> на следующий:</p>
+
+<figure class='code'><figcaption><span>Листинг 4 - Решение 0 для модели List::Item app/models/list/item.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">List</span><span class="o">::</span><span class="no">Item</span> <span class="o">&lt;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>то все рабоет нормально:</p>
+
+<figure class='code'><figcaption><span>Листинг 5 - Результат решения 0 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>2.1.2 :001 &gt; List::Item.new
+</span><span class='line'> <span class="o">=</span>&gt; <span class="c">#&lt;List::Item id: nil, created_at: nil, updated_at: nil&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Решение 1 - Заменить module на класс</h3>
+
+<p>Изучая объектную модель ruby мы обнаружили одну интересную вещь: класс -
+это тот же модуль, но с дополнительным функционалом!</p>
+
+<figure class='code'><figcaption><span>Листинг 6 - Отношения Class и Module </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="mi">2</span><span class="o">.</span><span class="mi">1</span><span class="o">.</span><span class="mi">2</span> <span class="p">:</span><span class="mo">013</span> <span class="o">&gt;</span> <span class="no">List</span><span class="o">::</span><span class="no">Item</span><span class="o">.</span><span class="n">class</span>
+</span><span class='line'> <span class="o">=&gt;</span> <span class="no">Class</span>
+</span><span class='line'><span class="mi">2</span><span class="o">.</span><span class="mi">1</span><span class="o">.</span><span class="mi">2</span> <span class="p">:</span><span class="mo">014</span> <span class="o">&gt;</span> <span class="no">List</span><span class="o">::</span><span class="no">Item</span><span class="o">.</span><span class="n">class</span><span class="o">.</span><span class="n">superclass</span>
+</span><span class='line'> <span class="o">=&gt;</span> <span class="no">Module</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Значит <code>Class</code> наследует весь функционал <code>Module</code> и он также может
+выступать как контейнер. Давайте попробуем это.</p>
+
+<figure class='code'><figcaption><span>Листинг 7 - Решение 1 для модели List::Item app/models/list/item.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">List</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span> <span class="o">&lt;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>И правда - все работает отлично:</p>
+
+<figure class='code'><figcaption><span>Листинг 8 - Результат решения 1 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>2.1.2 :001 &gt; List::Item.new
+</span><span class='line'> <span class="o">=</span>&gt; <span class="c">#&lt;List::Item id: nil, created_at: nil, updated_at: nil&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Решение 2 - К черту всю эту возню с объектной моделью!</h3>
+
+<p>В данном случае предлагается поступить следующим образом: выделить
+namespace и ложить туда все модели, которые логически связаны. В
+соответствии с нашим примером будет следующее:</p>
+
+<figure class='code'><figcaption><span>Листинг 9 - Модель Lists::List app/models/lists/list.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Lists</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">List</span> <span class="o">&lt;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>Листинг 10 - Модель Lists::Item app/models/lists/item.rb </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Lists</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span> <span class="o">&lt;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Однозначным плюсом данного подхода является то, что все модели лежат в
+одной папке и если вам нужно выпилить данный кусок функционала, то вот
+оно все в папке лежит - не нужно шарится среди несколько десятков
+моделей в папке <code>app/models</code>.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -728,6 +942,10 @@ Minitest</li>
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/03/15/kolliziia-imien-klassa-i-modulia-v-ruby/">Коллизия имен класса и модуля в Ruby</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2015/01/02/ruby-s-funktsional'nym-blieskom/">Ruby с функциональным блеском</a>
