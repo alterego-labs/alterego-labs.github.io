@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Metaprogramming | AlterEGO Labs official blog]]></title>
   <link href="http://alterego-labs.github.io/blog/categories/metaprogramming/atom.xml" rel="self"/>
   <link href="http://alterego-labs.github.io/"/>
-  <updated>2015-03-15T11:02:54+02:00</updated>
+  <updated>2015-03-15T11:06:44+02:00</updated>
   <id>http://alterego-labs.github.io/</id>
   <author>
     <name><![CDATA[AlterEGO Labs]]></name>
@@ -28,7 +28,7 @@
 <p><figure class='code'><figcaption><span>Листинг 0 - Модель Item app/models/item.rb</span></figcaption>
 <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Item</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Item</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></p>
 
@@ -38,7 +38,7 @@
 <p><figure class='code'><figcaption><span>Листинг 1 - Модель List app/models/list.rb </span></figcaption>
 <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">List</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">List</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></p>
 
@@ -53,7 +53,7 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">List</span>
-</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></p>
@@ -108,7 +108,7 @@
 <p><figure class='code'><figcaption><span>Листинг 4 - Решение 0 для модели List::Item app/models/list/item.rb </span></figcaption>
 <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">List</span><span class="o">::</span><span class="no">Item</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">List</span><span class="o">::</span><span class="no">Item</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></p>
 
@@ -146,7 +146,7 @@
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">List</span>
-</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></p>
@@ -172,7 +172,7 @@ namespace и ложить туда все модели, которые логи�
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Lists</span>
-</span><span class='line'>  <span class="k">class</span> <span class="nc">List</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">List</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></p>
@@ -183,7 +183,7 @@ namespace и ложить туда все модели, которые логи�
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Lists</span>
-</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveModel</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Item</span> <span class="o">&amp;</span><span class="n">lt</span><span class="p">;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
 </span><span class='line'>  <span class="k">end</span>
 </span><span class='line'><span class="k">end</span>
 </span></code></pre></td></tr></table></div></figure></p>
