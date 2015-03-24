@@ -9,8 +9,9 @@
   <meta name="author" content="AlterEGO Labs">
 
   
-  <meta name="description" content="Вот такая вот ситуация В основе статьи лежит ситуация, с которой я и мои коллеги столкнулись
-при работе над одним проектом. Представим себе следующее &hellip;">
+  <meta name="description" content="Во многих языках программирования можно встретить, так называемые,
+перечисления или enum, которые представляют из себя набор
+именованых констант. &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -77,6 +78,145 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/03/24/pieriechislieniia-v-ruby/">Перечисления в Ruby</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-03-24T14:59:12+02:00'><span class='date'><span class='date-month'>Mar</span> <span class='date-day'>24</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:59 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Во многих языках программирования можно встретить, так называемые,
+<strong>перечисления</strong> или <strong>enum</strong>, которые представляют из себя набор
+именованых констант. Например, в языке C# их можно объявить следующим образом:</p>
+
+<figure class='code'><figcaption><span>land:csharp Листинг 1 - Enum в C# </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>enum Days {Mon, Tue, Wed, Thu, Fri, Sat, Sun};
+</span><span class='line'>
+</span><span class='line'>day = Days.Mon;</span></code></pre></td></tr></table></div></figure>
+
+
+<p>В ruby нет встроенного типа <strong>enum</strong>, но есть несколько приемов как
+такое можно реализовать из того, что есть под рукой :-)</p>
+
+<h3>Вариант 1 - Быстрый и понятный</h3>
+
+<p>Все что нам нужно - модуль и константы. Код будет следующим:</p>
+
+<figure class='code'><figcaption><span>Листинг 2 - Ruby Enum 1 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Days</span>
+</span><span class='line'>  <span class="no">MON</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>  <span class="no">TUE</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span class='line'>  <span class="c1"># и так далее</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="no">Days</span><span class="o">::</span><span class="no">MON</span> <span class="c1"># =&gt; 1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Я думаю, что здесь особо ничего не нужно комментировать.</p>
+
+<h3>Вариант 2</h3>
+
+<p>Вот такой интересный вариант я нагуглил:</p>
+
+<figure class='code'><figcaption><span>Листинг 3 - Ruby Enum 2 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Days</span> <span class="o">=</span> <span class="o">[</span><span class="no">Mon</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="no">Tue</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="o">.</span><span class="n">.</span><span class="o">.]</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="no">Mon</span> <span class="c1"># =&gt; 1</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Но данный подход, как по мне, имеет несколько недостатков:</p>
+
+<ul>
+<li>Теряется <em>namespace</em>, для этого нужно код выше поместить еще в модуль</li>
+<li>Необходимо вручную прописывать значения для каждого элемента
+перечисления</li>
+<li>Не очень удобно (но иногда все таки необходимо) использовать числа в
+качестве значений</li>
+</ul>
+
+
+<h3>Вариант 3</h3>
+
+<p>Необходимо будет написать дополнительно пару строк кода и&hellip; вуаля!</p>
+
+<figure class='code'><figcaption><span>Листинг 4 - Ruby Enum 3 </span></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Enumable</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">enum</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">args</span><span class="o">.</span><span class="n">flatten</span><span class="o">.</span><span class="n">each</span> <span class="p">{</span> <span class="o">|</span><span class="n">const</span><span class="o">|</span> <span class="nb">const_set</span><span class="p">(</span><span class="n">const</span><span class="p">,</span> <span class="n">const</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">module</span> <span class="nn">Days</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">Enumable</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">enum</span> <span class="s2">&quot;MON&quot;</span><span class="p">,</span> <span class="s2">&quot;TUE&quot;</span><span class="p">,</span> <span class="s2">&quot;WED&quot;</span><span class="p">,</span> <span class="o">.</span><span class="n">.</span><span class="o">.</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">puts</span> <span class="no">Days</span><span class="o">::</span><span class="no">MON</span> <span class="c1"># =&gt; &#39;MON&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Такой вариант очень удобен и читабелен, особенно если вы хотите
+устанавливать определенные значения для какой-либо записи в БД. Ведь
+сразу понятнее такая информация <code>event.day_of_week # =&gt; 'MON'</code>, чем
+<code>event.day_of_week # =&gt; 1</code>.</p>
+
+<h3>Заключение</h3>
+
+<p>На самом деле можно нагуглить очень много вариантов реализации и вы
+можете выбрать именно тот, который вам по душе и лучше всего подходит к
+решению конкретной задачи.</p>
+
+<p>P.S. Вот, на мой взгляд, одна из самых лучших реализаций <a href="https://github.com/dblock/ruby-enum">ruby enum</a></p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -942,6 +1082,10 @@ Minitest</li>
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/03/24/pieriechislieniia-v-ruby/">Перечисления в Ruby</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2015/03/15/kolliziia-imien-klassa-i-modulia-v-ruby/">Коллизия имен класса и модуля в Ruby</a>
