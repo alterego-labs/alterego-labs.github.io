@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 1.9 | AlterEGO Labs official blog]]></title>
+  <link href="http://alterego-labs.github.io/blog/categories/1-dot-9/atom.xml" rel="self"/>
+  <link href="http://alterego-labs.github.io/"/>
+  <updated>2015-03-25T12:08:26+02:00</updated>
+  <id>http://alterego-labs.github.io/</id>
+  <author>
+    <name><![CDATA[AlterEGO Labs]]></name>
+    <email><![CDATA[alteregolabs@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Проблемы с апдейтом Bundler 1.9]]></title>
+    <link href="http://alterego-labs.github.io/blog/2015/03/25/probliemy-s-apdieitom-bundler-1-dot-9/"/>
+    <updated>2015-03-25T11:56:42+02:00</updated>
+    <id>http://alterego-labs.github.io/blog/2015/03/25/probliemy-s-apdieitom-bundler-1-dot-9</id>
+    <content type="html"><![CDATA[<p>Несколько дней назад вышел апдейт известного гема для менеджмента
+зависимостей <strong>bundler</strong>. Вот <a href="http://bundler.io/blog/2015/03/21/hello-bundler-19.html">пруф линк</a>.</p>
+
+<p>Я сразу же поспешил обновить его, т.к. у меня, как оказалось, стояла еще
+версия 1.7.7. Но оказалось не все так радостно.</p>
+
+<p>После апдейта перестали запускаться rails приложения. Вывод после выполнения команды <code>rails s</code> стал следующим:</p>
+
+<pre><code>/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/values/time_zone.rb:283: warning: circular argument reference - now
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/newrelic_rpm-3.8.1.221/lib/new_relic/agent/configuration/default_source.rb:674: warning: duplicated key at line 985 ignored: :disable_mongo
+bin/rails:6: warning: already initialized constant APP_PATH
+/Users/sergio/Work/railsapps/tiporbet/bin/rails:6: warning: previous definition of APP_PATH was here
+Usage: rails COMMAND [ARGS]
+
+The most common rails commands are:
+ generate    Generate new code (short-cut alias: "g")
+ console     Start the Rails console (short-cut alias: "c")
+ server      Start the Rails server (short-cut alias: "s")
+ dbconsole   Start a console for the database specified in config/database.yml
+             (short-cut alias: "db")
+ new         Create a new Rails application. "rails new my_app" creates a
+             new application called MyApp in "./my_app"
+
+In addition to those, there are:
+ application  Generate the Rails application code
+ destroy      Undo code generated with "generate" (short-cut alias: "d")
+ plugin new   Generates skeleton for developing a Rails plugin
+ runner       Run a piece of code in the application environment (short-cut alias: "r")
+
+All commands can be run with -h (or --help) for more information.
+</code></pre>
+
+<p>Я подумал, что проблема в <em>spring</em> и перезапустил его командой <code>spring
+stop</code>, но ничего не изменилось.</p>
+
+<p>Следующим шагом я решил прегенерить binstubs.</p>
+
+<pre><code>sergio@sergios-MacBook-Pro ~/Work/railsapps/tiporbet (master●)$ bundle config --delete bin                                                                                                                                                                         [ruby-2.2.0]
+sergio@sergios-MacBook-Pro ~/Work/railsapps/tiporbet (master●)$ rake rails:update:bin                                                                                                                                                                              [ruby-2.2.0]
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/values/time_zone.rb:283: warning: circular argument reference - now
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/newrelic_rpm-3.8.1.221/lib/new_relic/agent/configuration/default_source.rb:674: warning: duplicated key at line 985 ignored: :disable_mongo
+rake aborted!
+LoadError: Please require this file from within a Capistrano recipe
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/capistrano-2.15.4/lib/capistrano/configuration/loading.rb:18:in `instance'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/rvm-capistrano-1.5.1/lib/rvm/capistrano/helpers/base.rb:16:in `rvm_with_capistrano'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/rvm-capistrano-1.5.1/lib/rvm/capistrano/helpers/_cset.rb:3:in `&lt;top (required)&gt;'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:229:in `require'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:229:in `block in require'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:214:in `load_dependency'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:229:in `require'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/rvm-capistrano-1.5.1/lib/rvm/capistrano/base.rb:1:in `&lt;top (required)&gt;'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:229:in `require'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:229:in `block in require'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:214:in `load_dependency'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:229:in `require'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/rvm-capistrano-1.5.1/lib/rvm/capistrano/selector.rb:1:in `&lt;top (required)&gt;'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:229:in `require'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:229:in `block in require'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:214:in `load_dependency'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/dependencies.rb:229:in `require'
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/rvm-capistrano-1.5.1/lib/rvm/capistrano.rb:3:in `&lt;top (required)&gt;'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler/runtime.rb:85:in `require'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler/runtime.rb:85:in `rescue in block in require'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler/runtime.rb:68:in `block in require'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler/runtime.rb:61:in `each'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler/runtime.rb:61:in `require'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler.rb:134:in `require'
+/Users/sergio/Work/railsapps/tiporbet/config/application.rb:6:in `&lt;top (required)&gt;'
+/Users/sergio/Work/railsapps/tiporbet/Rakefile:4:in `require'
+/Users/sergio/Work/railsapps/tiporbet/Rakefile:4:in `&lt;top (required)&gt;'
+/Users/sergio/.rvm/gems/ruby-2.2.0/bin/ruby_executable_hooks:15:in `eval'
+/Users/sergio/.rvm/gems/ruby-2.2.0/bin/ruby_executable_hooks:15:in `&lt;main&gt;'
+LoadError: cannot load such file -- rvm-capistrano
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler/runtime.rb:76:in `require'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler/runtime.rb:76:in `block (2 levels) in require'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler/runtime.rb:72:in `each'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler/runtime.rb:72:in `block in require'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler/runtime.rb:61:in `each'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler/runtime.rb:61:in `require'
+/Users/sergio/.rvm/gems/ruby-2.2.0@global/gems/bundler-1.9.1/lib/bundler.rb:134:in `require'
+/Users/sergio/Work/railsapps/tiporbet/config/application.rb:6:in `&lt;top (required)&gt;'
+/Users/sergio/Work/railsapps/tiporbet/Rakefile:4:in `require'
+/Users/sergio/Work/railsapps/tiporbet/Rakefile:4:in `&lt;top (required)&gt;'
+/Users/sergio/.rvm/gems/ruby-2.2.0/bin/ruby_executable_hooks:15:in `eval'
+/Users/sergio/.rvm/gems/ruby-2.2.0/bin/ruby_executable_hooks:15:in `&lt;main&gt;'
+(See full trace by running task with --trace)
+</code></pre>
+
+<p>Как оказалось - это проблема с гемом <em>rvm-capistrano</em> и началась она еще
+с апдейта bundler 1.8.0, но так как у меня стояла более поздняя версия,
+то все было нормально. Решением этой проблемы стало указанием <code>require:
+false</code> в <em>Gemfile</em>:</p>
+
+<pre><code>gem 'rvm-capistrano', '1.5.1', require: false
+</code></pre>
+
+<p>Затем я нормально смог перегенерить binstubs:</p>
+
+<pre><code>sergio@sergios-MacBook-Pro ~/Work/railsapps/tiporbet (master●)$ rake rails:update:bin                                                                                                                                                                              [ruby-2.2.0]
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/activesupport-4.0.4/lib/active_support/values/time_zone.rb:283: warning: circular argument reference - now
+/Users/sergio/.rvm/gems/ruby-2.2.0/gems/newrelic_rpm-3.8.1.221/lib/new_relic/agent/configuration/default_source.rb:674: warning: duplicated key at line 985 ignored: :disable_mongo
+WARNING: Nokogiri was built against LibXML version 2.9.0, but has dynamically loaded 2.8.0
+       exist  bin
+   identical  bin/bundle
+    conflict  bin/rails
+Overwrite /Users/sergio/Work/railsapps/tiporbet/bin/rails? (enter "h" for help) [Ynaqdh] Y
+       force  bin/rails
+    conflict  bin/rake
+Overwrite /Users/sergio/Work/railsapps/tiporbet/bin/rake? (enter "h" for help) [Ynaqdh] Y
+       force  bin/rake
+</code></pre>
+
+<p>И вот, наконец-то, мое rails app запустилось!</p>
+]]></content>
+  </entry>
+  
+</feed>
