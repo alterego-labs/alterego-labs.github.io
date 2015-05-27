@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Fun | AlterEGO Labs official blog]]></title>
+  <link href="http://alterego-labs.github.io/blog/categories/fun/atom.xml" rel="self"/>
+  <link href="http://alterego-labs.github.io/"/>
+  <updated>2015-05-28T02:13:39+03:00</updated>
+  <id>http://alterego-labs.github.io/</id>
+  <author>
+    <name><![CDATA[AlterEGO Labs]]></name>
+    <email><![CDATA[alteregolabs@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Ruby метапрограмминг и наследование]]></title>
+    <link href="http://alterego-labs.github.io/blog/2015/05/25/ruby-mietaproghrammingh-i-nasliedovaniie/"/>
+    <updated>2015-05-25T11:23:10+03:00</updated>
+    <id>http://alterego-labs.github.io/blog/2015/05/25/ruby-mietaproghrammingh-i-nasliedovaniie</id>
+    <content type="html"><![CDATA[<p>Ruby не перестает меня удивлять! Как по мне, то самое удивительное и
+мощное в нем - метапрограмминг. После статического языка, в котором твой
+арсенал ограничен заложенными ключевыми словами и конструкциями, просто
+невозможно вообразить насколько развязаны твои руки и что ты можешь со
+всем этим делать! Используя динамику и выразительность Ruby можно
+превратить кусок кода практически в понятную фразу на английском.</p>
+
+<p>Элементы конструкций не ограничены! Можно создавать их самому сколько
+угодно, получая в результате высокоуровневый и понятный почти любому
+человеку DSL.</p>
+
+<p>Самое главное вовремя остановится&hellip; Но не сейчас)</p>
+
+<h3>Варианты объявления класса</h3>
+
+<p>Все мы привыкли объявлять наши классы используя элемент синтаксиса ruby,
+а именно ключевое слово <strong>class</strong>:</p>
+
+<pre><code class="ruby">class User
+end
+</code></pre>
+
+<p>Но существует еще один вариант. Т.к. класс является экземпляром класса
+Class, то справедлива следующая запись:</p>
+
+<pre><code class="ruby">User = Class.new do
+  attr_accessor :name
+end
+</code></pre>
+
+<p>Используя способ выше также можно указать суперкласс, просто передав его
+как параметр в метод <code>Class.new</code>:</p>
+
+<pre><code class="ruby">class User
+end
+
+RegisteredUser = Class.new(User) do
+end
+
+RegisteredUser.ancestors # =&gt; [RegisteredUser, User, Object, Kernel, BasicObject]
+</code></pre>
+
+<p><strong>Но есть одна интересная особенность!</strong></p>
+
+<p>Когда вы несколько раз объявляете класс используя ключевое слово <em>class</em>, то реально
+класс инициализируется только один раз. Все следующие разы класс
+<strong>открывается</strong> для внесения изменений. Например:</p>
+
+<pre><code class="ruby">class User
+end
+
+User.object_id # =&gt; 70299452133440
+
+User.new.name # =&gt; NoMethodError: undefined method `name' for #&lt;User:0x007fd35b40a930&gt;
+
+class User
+  def name
+    'Sergey'
+  end
+end
+
+User.obect_id # =&gt; 70299452133440
+
+User.new.name # =&gt; Sergey
+</code></pre>
+
+<p>В случае с объявлением класса, используя метод <code>Class.new</code>, ситуация
+немного другая. На самом деле слово <code>User</code>, которое мы используем для
+инициализации экземпляров, является практически такой же переменной,
+которая ссылается на экземпляр класса <code>Class</code>. Поэтому код ниже дает,
+может быть, вполне очевидные результаты:</p>
+
+<pre><code class="ruby">class User
+  def name
+    'Sergey'
+  end
+end
+
+User.object_id # =&gt; 70162158343080
+
+User.new.name # =&gt; Sergey
+
+User = Class.new do
+  def second_name
+    'Gernyak'
+  end
+
+  def full_name
+    "#{second_name} #{name}"
+  end
+end
+
+User.object_id #=&gt; 70162144228540
+
+User.new.full_name # =&gt; NameError: undefined local variable or method `name' for #&lt;User:0x007fdb3b028b18&gt;
+
+User.new.second_name # =&gt; Gernyak
+</code></pre>
+
+<p>Получается мы взяли и заменили значение нашей переменной <code>User</code> на
+другое. Об этом также свидетельствует значение <code>object_id</code>. Поэтому наш
+новый класс <code>User</code> ничего не знает о методе <code>#name</code>.</p>
+
+<p>Правда и тут можно сделать хитрость: добавить наш существующий класс в
+цепочку наследования:</p>
+
+<pre><code class="ruby">class User
+  def first_name
+    'Sergey'
+  end
+end
+
+User.new.name # =&gt; Sergey
+
+User = Class.new(User) do # &lt;= Вот сюда
+  def second_name
+    'Gernyak'
+  end
+
+  def full_name
+    "#{second_name} #{first_name}"
+  end
+end
+
+User.new.full_name # =&gt; Gernyak Sergey
+
+User.ancestors # =&gt; [User, User, Object, Kernel, BasicObject]
+</code></pre>
+
+<h3>Немного магии</h3>
+
+<p>А почему бы не объявить динамически класс, как суперкласс для другого
+класса?</p>
+
+<pre><code class="ruby">class User &lt; Class.new
+end
+
+User.ancestors # =&gt; [User, #&lt;Class:0x007fd241dae998&gt;, Object, Kernel, BasicObject]
+</code></pre>
+
+<p>Данную фичу я использовал в одной из наших библиотек <a href="https://github.com/alterego-labs/extracted_validator">exracted_validator</a>.</p>
+
+<p>У меня есть некоторый базовый класс, который содержит общую логику для
+возможности вынесения валидаций из модели:</p>
+
+<pre><code class="ruby">module ExtractedValidator
+  class Base &lt; SimpleDelegator
+    # Some logic here
+  end
+end
+</code></pre>
+
+<p>Но с некоторыми видами валидаций могут возникнуть проблемы, т.к. они
+жестко завязаны на именование класса, в котором они объявлены. Например,
+валидация <strong>uniqueness</strong>. Для того, чтобы иметь возможность использовать
+такую валидацию в кастомном валидаторе, необходимо переопределить метод
+<code>.model_class</code>:</p>
+
+<pre><code class="ruby">class SignUpUserValidator &lt; ExtractedValidator::Base
+  def self.model_class
+    User
+  end
+end
+</code></pre>
+
+<p>Используя последний код, все будет работать как и ожидается и все
+останутся довольны.</p>
+
+<p>Ну почти все&hellip; Я не доволен тем, что мне принудительно нужно добавлять
+еще один метод каждый раз, когда буду объявлять новый валидатор. Поэтому
+я решил сделать небольшой рефакторинг используя метапрограмминг :-)</p>
+
+<p>И вот что получилось:</p>
+
+<pre><code class="ruby">module ExtractedValidator
+  class Base &lt; SimpleDelegator
+    def self.[](model)
+      Class.new(self) do
+        define_singleton_method :model_class do
+          model
+        end
+      end
+    end
+  end
+end
+
+class SignUpUserValidator &lt; ExtractedValidator::Base[User]
+end
+</code></pre>
+
+<p>В данном примере динамически создается класс-обертка, в котором
+объявляется требуемый метод <code>.model_class</code> и этот метод возвращает
+переданный класс, целевой для данного валидатора, модели. Цепочка
+наследования может выглядеть следующим образом:</p>
+
+<pre><code class="ruby">SignUpUserValidator.ancestors # =&gt; [SignUpUserValidator, #&lt;Class:0x007f8ec9b604b8&gt;, ExtractedValidator::Base, SimpleDelegator, Delegator, #&lt;Module:0x007f8ec9c1a138&gt;, BasicObject]
+</code></pre>
+
+<p>Вот <code>#&lt;Class:0x007f8ec9b604b8&gt;</code> как раз и есть тот самый класс-обертка!</p>
+
+<p>На этом у меня все. <strong>Спасибо за внимание!</strong></p>
+]]></content>
+  </entry>
+  
+</feed>
