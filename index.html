@@ -9,9 +9,9 @@
   <meta name="author" content="AlterEGO Labs">
 
   
-  <meta name="description" content="Ruby не перестает меня удивлять! Как по мне, то самое удивительное и
-мощное в нем - метапрограмминг. После статического языка, в котором твой
-арсенал &hellip;">
+  <meta name="description" content="Наверное самым странным и непонятным (по моему мнению) компонентом
+Rails являются хелперы (Helpers). Когда мы приходим в мир Rails мы много
+читаем &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -78,6 +78,194 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/09/29/rails-helpers-why/">Rails Helpers: WHY?!?</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+<time class='entry-date' datetime='2015-09-29T14:10:29+03:00'><span class='date'><span class='date-month'>Sep</span> <span class='date-day'>29</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:10 pm</span></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Наверное самым странным и непонятным (по моему мнению) компонентом
+Rails являются хелперы (Helpers). Когда мы приходим в мир Rails мы много
+читаем про MVC и как она реализована в Rails, прозоны ответственности
+этих компонентов. Но что представляют собой Helpers, которые содержатся
+в папке <code>app/helpers</code>?</p>
+
+<h3>Что предгагают нам рельсы</h3>
+
+<p>Хелперы представляют собой обычные модули с набором функций. Например:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">ApplicationHelper</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">some_useful_method</span><span class="p">(</span><span class="n">arg1</span><span class="p">)</span>
+</span><span class='line'>    <span class="c1"># some logic here</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Модули не являются самостоятельными единицами и в практически всегда они
+инклудятся в определенный контекст для расширения.</p>
+
+<p>Хелперы придумали для выноса части различной мелкой (в некоторых случаях
+не такой уж и мелкой) логики из контролера и представления (view).
+Например:</p>
+
+<figure class='code'><figcaption><span>app/helpers/application_helper.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">ApplicationHelper</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">hello_text</span>
+</span><span class='line'>    <span class="s1">&#39;Hello from Helper!&#39;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>app/controllers/welcome_controller.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">WelcomeController</span> <span class="o">&lt;</span> <span class="no">ApplicationController</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">index</span>
+</span><span class='line'>    <span class="c1"># here `hello_text` will be available</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span>app/views/welcome/index.html.erb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='erb'><span class='line'><span class="cp">&lt;%=</span> <span class="n">hello_text</span> <span class="cp">%&gt;</span><span class="x"></span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Какие проблемы</h3>
+
+<p>Основная проблема в том, что хелперы превращаются в неконтролируемую
+свалку ни к чему не привязанных функций, ведь по умолчанию все хелперы
+инклудятся в любой контроллер. При этом возникает вероятность
+существования нескольких функций с одинаковыми именами и тогда удачной
+отладки. До определенного момента в контроллер инклудился хелпер имя
+модуля которого является часть имени контроллера без <em>Controller</em> части.</p>
+
+<p>Так как хелперы инклудятся в контекст view, то в них доступны instance variables объявленные в
+контроллере. Поэтому это уменьшает возможность повторного использования,
+а также увеличивает непонимание того, какие объекты являются &ldquo;игроками&rdquo;
+в той или иной функции, и возвожность протестировать. Например:</p>
+
+<figure class='code'><figcaption><span>app/helpers/application_helper.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">ApplicationHelper</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">build_push_state</span><span class="p">(</span><span class="ss">except</span><span class="p">:</span> <span class="o">[]</span><span class="p">,</span> <span class="ss">with</span><span class="p">:</span> <span class="p">{})</span>
+</span><span class='line'>    <span class="vi">@push_state</span> <span class="o">=</span> <span class="no">PushStateBuilder</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="ss">except</span><span class="p">:</span> <span class="n">except</span><span class="p">,</span> <span class="ss">with</span><span class="p">:</span> <span class="n">with</span><span class="p">)</span><span class="o">.</span><span class="n">build</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Также из-за особенности, что хелперы доступны и в контроллере и в
+представлении, иногда трудно сказать в каком логическом контексте текущая функция
+должна вызываться, хотя она может быть универсальной и вызываться в
+обеих.</p>
+
+<p>Очень часто хелперы используют для формирования html сниппетов:</p>
+
+<figure class='code'><figcaption><span>app/helpers/application_helper.rb</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">ApplicationHelper</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">error_messages_for</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">decorated</span> <span class="o">=</span> <span class="kp">true</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">empty?</span>
+</span><span class='line'>    <span class="n">errors_text</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">full_messages</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="o">|</span><span class="n">msg</span><span class="o">|</span> <span class="n">content_tag</span><span class="p">(</span><span class="ss">:li</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span> <span class="p">}</span><span class="o">.</span><span class="n">join</span>
+</span><span class='line'>    <span class="n">error_messages</span> <span class="n">errors_text</span><span class="p">,</span> <span class="n">decorated</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Мне кажется, что формирование HTML кода необходимо оставлять на view.</p>
+
+<p><strong>Резюмирую</strong>: в итоге получается модули, в которых масса отдельно
+сущестующих методов, которые привязаны к разным логическим контекстам выполнения
+(controller или view), которые могут генерировать HTML код и много всего
+другого, чего они не должны делать.</p>
+
+<h3>Как уменьшить боль?</h3>
+
+<p>Я бы не рекомендовал использовать хелперы вообще. Но бывают ситуации,
+особенно на старте проекта, когда нужно быстро накидать рабочий
+прототип, при этом особо не заморачиваясь с продумыванием сложной
+объектной иерархии с распределением обязанностей. Поэтому я выделю
+несколько маленьких рецептов:</p>
+
+<ol>
+<li><p>Не использовать instance variables, объявленные в контроллере или во
+view. Передавайте явно параметры. При этом можно избежать side
+effects, когда вы вызываете функцию, а там используется instance
+variable, которой еще нет. В идеале функции, объявленные в хелперах,
+должны быть <a href="https://en.wikipedia.org/wiki/Pure_function">pure functions</a>.</p></li>
+<li><p>Выносите формирование HTML сниппетов в отдельный partial. Опять же
+бывают ситуации, когда сниппет - это буквально одна строчка,
+например, в зависимости от статуса выводить разную иконку.</p></li>
+<li><p>Отказаться от глобального инклудинга всех хелперов. Для этого
+необходимо добавить следующую строку, например в
+<code>config/application.rb</code>:</p>
+
+<pre><code class="ruby">config.action_controller.include_all_helpers = false
+</code></pre></li>
+<li>Отказаться от хелперов и посмотреть в сторону <strong>View Object</strong> или
+<strong>ViewModel</strong> :-)</li>
+</ol>
+
+
+<h3>Полезные ссылки</h3>
+
+<ul>
+<li><a href="https://github.com/rails/rails/blob/4-2-stable/actionpack/lib/action_controller/metal/helpers.rb">https://github.com/rails/rails/blob/4-2-stable/actionpack/lib/action_controller/metal/helpers.rb</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Pure_function">https://en.wikipedia.org/wiki/Pure_function</a></li>
+<li><a href="https://github.com/apotonick/cells">https://github.com/apotonick/cells</a></li>
+<li><a href="https://github.com/drapergem/draper">https://github.com/drapergem/draper</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1822,6 +2010,10 @@ Minitest</li>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/09/29/rails-helpers-why/">Rails Helpers: WHY?!?</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/05/25/ruby-mietaproghrammingh-i-nasliedovaniie/">Ruby метапрограмминг и наследование</a>
       </li>
     
@@ -1835,10 +2027,6 @@ Minitest</li>
     
       <li class="post">
         <a href="/blog/2015/03/24/pieriechislieniia-v-ruby/">Перечисления в Ruby</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/03/15/kolliziia-imien-klassa-i-modulia-v-ruby/">Коллизия имен класса и модуля в Ruby</a>
       </li>
     
   </ul>
